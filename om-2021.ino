@@ -649,6 +649,26 @@ void display_panOrBounceBitmap (uint8_t bitmapSize) {
     }
 }
 
+void smile_with_rotating_text()
+{
+    
+    matrix->setTextSize(1);
+    matrix->setTextColor(LED_GREEN_HIGH);
+    
+    for (int16_t x=32; x>=-24; x--)
+    {
+        matrix->clear();
+        matrix->setRotation(3);
+        matrix->setCursor(x, 0);
+        matrix->print("Smile");
+        matrix->setRotation(0);
+        display_static_bitmap(5, LED_GREEN_HIGH);
+        matrix->show();
+  // note that on a big array the refresh rate from show() will be slow enough that
+  // the delay become irrelevant. This is already true on a 32x32 array.
+        delay(50);
+    }
+}
 
 void loop() {
     // clear the screen after X bitmaps have been displayed and we
@@ -662,36 +682,60 @@ void loop() {
     
     // bounce around a small one
     //display_panOrBounceBitmap(8);
-    matrix->clear();
+    //matrix->clear();
     
     //display_four_white();
-    delay(3000);
+    //delay(3000);
 
-    uint16_t bmpcolor[] = { LED_GREEN_HIGH, LED_BLUE_HIGH, LED_RED_HIGH };
-
-    display_static_bitmap(5, LED_GREEN_HIGH);
-    delay(3000);
+    smile_with_rotating_text();
+    delay(8000);
     matrix->clear();
     matrix->show();
     delay(1000);
 
-    for (uint8_t i=0; i<5; i++)
+    uint16_t bmpcolor[] = { LED_GREEN_HIGH, LED_BLUE_HIGH, LED_RED_HIGH };
+/*
+    display_static_bitmap(5, LED_GREEN_HIGH);
+
+    //display_scrollText();
+  
+    uint8_t size = max(int(mw/8), 1);
+    matrix->setRotation(3);
+    matrix->setTextSize(1);
+    matrix->setTextColor(LED_GREEN_HIGH);
+
+    matrix->setCursor(9, 0);
+    matrix->print("Grin");
+    matrix->show();
+    matrix->setRotation(0);
+    
+    delay(3000);
+    
+    matrix->clear();
+    matrix->show();
+    delay(1000);
+*/
+    
+    matrix->setRotation(3);
+    matrix->setCursor(12, 0);
+    matrix->print("LOL");
+    matrix->show();
+    matrix->setRotation(0);
+    
+    for (uint8_t i=0; i<25; i++)
     {
       display_static_bitmap(5, LED_GREEN_HIGH);
       delay(200);
       display_static_bitmap(6, LED_GREEN_HIGH);
       delay(200);
     }
+
+    delay(2000);
+      
     matrix->clear();
     matrix->show();
+    delay(1000);
     
-    // Display 3 smiley faces.
-    //for (uint8_t i=2; i<=4; i++)
-    //{
-	//display_bitmap(i, bmpcolor[i-2]);
-	// If more than one pixmap displayed per screen, display more quickly.
-	//delay(mw>8?500:1500);
-    //}
 }
 
 void setup() {
