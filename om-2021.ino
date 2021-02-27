@@ -12,6 +12,11 @@
 
 #define PIN 6
 
+const int BUTTON_PIN = 2;     // the number of the pushbutton pin
+
+// variables will change:
+int buttonState = 0;         // variable for reading the pushbutton status
+
 // ESP8266 has an I2S neopixel library which can only use pin RX
 // so it's recommended to use the same pin with Neopixel to avoid
 // rewiring when changing libs
@@ -228,20 +233,8 @@ void smile_with_rotating_text()
     }
 }
 
-void loop() {
-    // clear the screen after X bitmaps have been displayed and we
-    // loop back to the top left corner
-    // 8x8 => 1, 16x8 => 2, 17x9 => 6
-    static uint8_t pixmap_count = ((mw+7)/8) * ((mh+7)/8);
-
-    smile_with_rotating_text();
-    delay(8000);
-    matrix->clear();
-    matrix->show();
-    delay(1000);
-
-    uint16_t bmpcolor[] = { LED_GREEN_HIGH, LED_BLUE_HIGH, LED_RED_HIGH };
-
+void laughing_with_text()
+{
     matrix->setRotation(3);
     matrix->setCursor(12, 0);
     matrix->print("LOL");
@@ -255,19 +248,43 @@ void loop() {
       display_static_bitmap(6, LED_GREEN_HIGH);
       delay(200);
     }
+}
 
-    delay(2000);
-      
-    matrix->clear();
-    matrix->show();
-    delay(1000); 
+void loop() {
+
+    buttonState = digitalRead(BUTTON_PIN);
+
+    if (buttonState == HIGH)
+    {
+        smile_with_rotating_text();
+        delay(8000);
+        matrix->clear();
+        matrix->show();
+
+        // Sleep between slides
+        delay(1000);
+    
+        laughing_with_text();
+        
+        delay(2000);
+        matrix->clear();
+        matrix->show();
+        
+        delay(1000);
+    }
+    
+    delay(50);
 }
 
 void setup() {
     Serial.begin(115200);
+
+    // initialize the pushbutton pin as an input:
+    pinMode(BUTTON_PIN, INPUT);
+  
     matrix->begin();
     matrix->setTextWrap(false);
-    matrix->setBrightness(BRIGHTNESS);
+    matrix->setBrightness(BRIGHTNESS);  
     // Test full bright of all LEDs. If brightness is too high
     // for your current limit (i.e. USB), decrease it.
     matrix->show();
