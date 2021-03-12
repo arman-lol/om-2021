@@ -1,3 +1,5 @@
+#include <IRremote.h>
+
 // Adafruit_NeoMatrix example for single NeoPixel Shield.
 // By Marc MERLIN <marc_soft@merlins.org>
 // Contains code (c) Adafruit, license BSD
@@ -9,6 +11,10 @@
 #ifndef PSTR
  #define PSTR // Make Arduino Due happy
 #endif
+
+int RECV_PIN = 3; // the pin where you connect the output pin of IR sensor     
+IRrecv irrecv(RECV_PIN);     
+decode_results results;     
 
 #define PIN 6
 
@@ -250,34 +256,54 @@ void laughing_with_text()
     }
 }
 
+
 void loop() {
-
-    buttonState = digitalRead(BUTTON_PIN);
-
-    if (buttonState == HIGH)
+   
+    if (irrecv.decode())
     {
-        smile_with_rotating_text();
-        delay(8000);
-        matrix->clear();
-        matrix->show();
+        // 1=12
+        // 2=24
+        // 3=94
+        int currRes = irrecv.decodedIRData.command;
 
-        // Sleep between slides
-        delay(1000);
-    
-        laughing_with_text();
-        
-        delay(2000);
-        matrix->clear();
-        matrix->show();
-        
-        delay(1000);
+        if (currRes == 12)
+        {
+          Serial.println("Button 1 pressed");
+          smile_with_rotating_text();
+          delay(5000);
+          matrix->clear();
+          matrix->show();
+        }
+        else if (currRes == 24)
+        {
+          Serial.println("Button 2 pressed");
+          laughing_with_text();
+          delay(5000);
+          matrix->clear();
+          matrix->show();
+        }
+        else if (currRes == 0)
+        {
+          // do nothing, ignore code==0
+        }
+        else
+        {
+          Serial.println(" ");
+          Serial.print("Code: ");
+          Serial.println(currRes); //prints the value a a button press     
+          Serial.println(" ");
+        }
+        irrecv.resume();
     }
-    
-    delay(50);
+
+
+    delay(5);
 }
 
 void setup() {
     Serial.begin(115200);
+
+    irrecv.enableIRIn();
 
     // initialize the pushbutton pin as an input:
     pinMode(BUTTON_PIN, INPUT);
