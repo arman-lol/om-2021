@@ -22,7 +22,7 @@ const int BUTTON_PIN = 2;     // the number of the pushbutton pin
 
 // variables will change:
 int buttonState = 0;         // variable for reading the pushbutton status
-
+int currentScreen = 0;
 // ESP8266 has an I2S neopixel library which can only use pin RX
 // so it's recommended to use the same pin with Neopixel to avoid
 // rewiring when changing libs
@@ -33,7 +33,6 @@ int buttonState = 0;         // variable for reading the pushbutton status
 #define BM32
 
 #ifdef BM32
-#include "google32.h"
 // Anything with black does not look so good with the naked eye (better on pictures)
 //#include "linux32.h"
 #endif
@@ -92,97 +91,97 @@ Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(8, mh,
 
 // This could also be defined as matrix->color(255,0,0) but those defines
 // are meant to work for adafruit_gfx backends that are lacking color()
-#define LED_BLACK		0
+#define LED_BLACK    0
 
-#define LED_RED_VERYLOW 	(3 <<  11)
-#define LED_RED_LOW 		(7 <<  11)
-#define LED_RED_MEDIUM 		(15 << 11)
-#define LED_RED_HIGH 		(31 << 11)
+#define LED_RED_VERYLOW   (3 <<  11)
+#define LED_RED_LOW     (7 <<  11)
+#define LED_RED_MEDIUM    (15 << 11)
+#define LED_RED_HIGH    (31 << 11)
 
-#define LED_GREEN_VERYLOW	(1 <<  5)   
-#define LED_GREEN_LOW 		(15 << 5)  
-#define LED_GREEN_MEDIUM 	(31 << 5)  
-#define LED_GREEN_HIGH 		(63 << 5)  
+#define LED_GREEN_VERYLOW (1 <<  5)   
+#define LED_GREEN_LOW     (15 << 5)  
+#define LED_GREEN_MEDIUM  (31 << 5)  
+#define LED_GREEN_HIGH    (63 << 5)  
 
-#define LED_BLUE_VERYLOW	3
-#define LED_BLUE_LOW 		7
-#define LED_BLUE_MEDIUM 	15
-#define LED_BLUE_HIGH 		31
+#define LED_BLUE_VERYLOW  3
+#define LED_BLUE_LOW    7
+#define LED_BLUE_MEDIUM   15
+#define LED_BLUE_HIGH     31
 
-#define LED_ORANGE_VERYLOW	(LED_RED_VERYLOW + LED_GREEN_VERYLOW)
-#define LED_ORANGE_LOW		(LED_RED_LOW     + LED_GREEN_LOW)
-#define LED_ORANGE_MEDIUM	(LED_RED_MEDIUM  + LED_GREEN_MEDIUM)
-#define LED_ORANGE_HIGH		(LED_RED_HIGH    + LED_GREEN_HIGH)
+#define LED_ORANGE_VERYLOW  (LED_RED_VERYLOW + LED_GREEN_VERYLOW)
+#define LED_ORANGE_LOW    (LED_RED_LOW     + LED_GREEN_LOW)
+#define LED_ORANGE_MEDIUM (LED_RED_MEDIUM  + LED_GREEN_MEDIUM)
+#define LED_ORANGE_HIGH   (LED_RED_HIGH    + LED_GREEN_HIGH)
 
-#define LED_PURPLE_VERYLOW	(LED_RED_VERYLOW + LED_BLUE_VERYLOW)
-#define LED_PURPLE_LOW		(LED_RED_LOW     + LED_BLUE_LOW)
-#define LED_PURPLE_MEDIUM	(LED_RED_MEDIUM  + LED_BLUE_MEDIUM)
-#define LED_PURPLE_HIGH		(LED_RED_HIGH    + LED_BLUE_HIGH)
+#define LED_PURPLE_VERYLOW  (LED_RED_VERYLOW + LED_BLUE_VERYLOW)
+#define LED_PURPLE_LOW    (LED_RED_LOW     + LED_BLUE_LOW)
+#define LED_PURPLE_MEDIUM (LED_RED_MEDIUM  + LED_BLUE_MEDIUM)
+#define LED_PURPLE_HIGH   (LED_RED_HIGH    + LED_BLUE_HIGH)
 
-#define LED_CYAN_VERYLOW	(LED_GREEN_VERYLOW + LED_BLUE_VERYLOW)
-#define LED_CYAN_LOW		(LED_GREEN_LOW     + LED_BLUE_LOW)
-#define LED_CYAN_MEDIUM		(LED_GREEN_MEDIUM  + LED_BLUE_MEDIUM)
-#define LED_CYAN_HIGH		(LED_GREEN_HIGH    + LED_BLUE_HIGH)
+#define LED_CYAN_VERYLOW  (LED_GREEN_VERYLOW + LED_BLUE_VERYLOW)
+#define LED_CYAN_LOW    (LED_GREEN_LOW     + LED_BLUE_LOW)
+#define LED_CYAN_MEDIUM   (LED_GREEN_MEDIUM  + LED_BLUE_MEDIUM)
+#define LED_CYAN_HIGH   (LED_GREEN_HIGH    + LED_BLUE_HIGH)
 
-#define LED_WHITE_VERYLOW	(LED_RED_VERYLOW + LED_GREEN_VERYLOW + LED_BLUE_VERYLOW)
-#define LED_WHITE_LOW		(LED_RED_LOW     + LED_GREEN_LOW     + LED_BLUE_LOW)
-#define LED_WHITE_MEDIUM	(LED_RED_MEDIUM  + LED_GREEN_MEDIUM  + LED_BLUE_MEDIUM)
-#define LED_WHITE_HIGH		(LED_RED_HIGH    + LED_GREEN_HIGH    + LED_BLUE_HIGH)
+#define LED_WHITE_VERYLOW (LED_RED_VERYLOW + LED_GREEN_VERYLOW + LED_BLUE_VERYLOW)
+#define LED_WHITE_LOW   (LED_RED_LOW     + LED_GREEN_LOW     + LED_BLUE_LOW)
+#define LED_WHITE_MEDIUM  (LED_RED_MEDIUM  + LED_GREEN_MEDIUM  + LED_BLUE_MEDIUM)
+#define LED_WHITE_HIGH    (LED_RED_HIGH    + LED_GREEN_HIGH    + LED_BLUE_HIGH)
 
 static const uint8_t PROGMEM
     mono_bmp[][8] =
     {
-	{   // 0: checkered 1
-	    B10101010,
-	    B01010101,
-	    B10101010,
-	    B01010101,
-	    B10101010,
-	    B01010101,
-	    B10101010,
-	    B01010101,
-			},
+  {   // 0: checkered 1
+      B10101010,
+      B01010101,
+      B10101010,
+      B01010101,
+      B10101010,
+      B01010101,
+      B10101010,
+      B01010101,
+      },
 
-	{   // 1: checkered 2
-	    B01010101,
-	    B10101010,
-	    B01010101,
-	    B10101010,
-	    B01010101,
-	    B10101010,
-	    B01010101,
-	    B10101010,
-			},
+  {   // 1: checkered 2
+      B01010101,
+      B10101010,
+      B01010101,
+      B10101010,
+      B01010101,
+      B10101010,
+      B01010101,
+      B10101010,
+      },
 
-	{   // 2: smiley
-	    B00111100,
-	    B01000010,
-	    B10100101,
-	    B10000001,
-	    B10100101,
-	    B10011001,
-	    B01000010,
-	    B00111100 },
+  {   // 2: smiley
+      B00111100,
+      B01000010,
+      B10100101,
+      B10000001,
+      B10100101,
+      B10011001,
+      B01000010,
+      B00111100 },
 
-	{   // 3: neutral
-	    B00111100,
-	    B01000010,
-	    B10100101,
-	    B10000001,
-	    B10111101,
-	    B10000001,
-	    B01000010,
-	    B00111100 },
+  {   // 3: neutral
+      B00111100,
+      B01000010,
+      B10100101,
+      B10000001,
+      B10111101,
+      B10000001,
+      B01000010,
+      B00111100 },
 
-	{   // 4; frowny
-	    B00111100,
-	    B01000010,
-	    B10100101,
-	    B10000001,
-	    B10011001,
-	    B10100101,
-	    B01000010,
-	    B00111100 },
+  {   // 4; frowny
+      B00111100,
+      B01000010,
+      B10100101,
+      B10000001,
+      B10011001,
+      B10100101,
+      B01000010,
+      B00111100 },
 
 {   // 5; laugh_part_1
       B00111100,
@@ -218,20 +217,39 @@ void display_static_bitmap(uint8_t bmp_num, uint16_t color) {
     matrix->show();
 }
 
-void smile_with_rotating_text()
+void meh_with_rotating_text()
 {
     
     matrix->setTextSize(1);
     matrix->setTextColor(LED_GREEN_HIGH);
     
-    for (int16_t x=32; x>=-24; x--)
+    for (int16_t x=32; x>=5; x--)
     {
         matrix->clear();
         matrix->setRotation(3);
         matrix->setCursor(x, 0);
-        matrix->print("Smile");
+        matrix->print("Meh.");
         matrix->setRotation(0);
-        display_static_bitmap(5, LED_GREEN_HIGH);
+        matrix->show();
+  // note that on a big array the refresh rate from show() will be slow enough that
+  // the delay become irrelevant. This is already true on a 32x32 array.
+        delay(50);
+    }
+}
+
+void grin_with_text()
+{
+    
+    matrix->setTextSize(1);
+    matrix->setTextColor(LED_GREEN_HIGH);
+    
+    for (int16_t x=32; x>=2; x--)
+    {
+        matrix->clear();
+        matrix->setRotation(3);
+        matrix->setCursor(x, 0);
+        matrix->print("Grin.");
+        matrix->setRotation(0);
         matrix->show();
   // note that on a big array the refresh rate from show() will be slow enough that
   // the delay become irrelevant. This is already true on a 32x32 array.
@@ -241,18 +259,41 @@ void smile_with_rotating_text()
 
 void laughing_with_text()
 {
-    matrix->setRotation(3);
-    matrix->setCursor(12, 0);
-    matrix->print("LOL");
-    matrix->show();
-    matrix->setRotation(0);
     
-    for (uint8_t i=0; i<25; i++)
+    matrix->setTextSize(1);
+    matrix->setTextColor(LED_GREEN_HIGH);
+    
+    for (int16_t x=32; x>=-36; x--)
     {
-      display_static_bitmap(5, LED_GREEN_HIGH);
-      delay(200);
-      display_static_bitmap(6, LED_GREEN_HIGH);
-      delay(200);
+        matrix->clear();
+        matrix->setRotation(3);
+        matrix->setCursor(x, 0);
+        matrix->print("HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHA");
+        matrix->setRotation(0);
+        matrix->show();
+  // note that on a big array the refresh rate from show() will be slow enough that
+  // the delay become irrelevant. This is already true on a 32x32 array.
+        delay(50);
+    }
+}
+
+void wow_with_text()
+{
+    
+    matrix->setTextSize(1);
+    matrix->setTextColor(LED_GREEN_HIGH);
+    
+    for (int16_t x=32; x>=5; x--)
+    {
+        matrix->clear();
+        matrix->setRotation(3);
+        matrix->setCursor(x, 0);
+        matrix->print("Wow!");
+        matrix->setRotation(0);
+        matrix->show();
+  // note that on a big array the refresh rate from show() will be slow enough that
+  // the delay become irrelevant. This is already true on a 32x32 array.
+        delay(50);
     }
 }
 
@@ -269,17 +310,29 @@ void loop() {
         if (currRes == 12)
         {
           Serial.println("Button 1 pressed");
-          smile_with_rotating_text();
-          delay(5000);
-          matrix->clear();
+          meh_with_rotating_text();
+          delay(3000);
           matrix->show();
         }
         else if (currRes == 24)
         {
           Serial.println("Button 2 pressed");
+          grin_with_text();
+          delay(5000);
+          matrix->show();
+        }
+        else if (currRes == 94)
+        {
+          Serial.println("Button 3 pressed");
           laughing_with_text();
           delay(5000);
-          matrix->clear();
+          matrix->show();
+        }
+        else if (currRes == 8)
+        {
+          Serial.println("Button 4 pressed");
+          wow_with_text();
+          delay(5000);
           matrix->show();
         }
         else if (currRes == 0)
